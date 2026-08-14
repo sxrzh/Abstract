@@ -415,7 +415,6 @@ lemma pow_int_succ {α : Type} [Group α] (a : α) (n : ℤ) :
       simp [pow_int_nonpos h_n',
         pow_int_nonpos h_m']
 
-
 @[simp] lemma pow_zero {α : Type} [Group α] (a : α) : a ^ (0 : ℤ) = 1 := rfl
 @[simp] lemma pow_one {α : Type} [Group α] (a : α) : a ^ (1 : ℤ) = a := by
   apply pow_int_one
@@ -429,9 +428,7 @@ lemma pow_int_succ {α : Type} [Group α] (a : α) (n : ℤ) :
   apply pow_int_add
 @[simp] lemma pow_sub {α : Type} [Group α] (a : α) (n m : ℤ) : a ^ (n - m) = a ^ n * (a ^ m)⁻¹ := by
   apply pow_int_sub
-
 @[simp] lemma pow_mul {α : Type} [Group α] (a : α) (n m : ℤ) : a ^ (n * m) = (a ^ n) ^ m := by
-  change pow_int a (n * m) = pow_int (pow_int a n) m
   apply pow_int_mul
 
 -- 2.1.5
@@ -500,10 +497,7 @@ example {G : Type} [Nonempty G] [DecidableEq G] [Fintype G] [Semigroup G]
     let trans : G → G' := fun t => ⟨a * t, h_contra t⟩
     have : ∃ x y, x ≠ y ∧ trans x = trans y :=
       Fintype.exists_ne_map_eq_of_card_lt trans h_card
-    -- rcases this with ⟨x, y, hxy⟩
     obtain ⟨x, y, ⟨h_ne, h_teq⟩⟩ := this
-    -- rcases h_teq with ⟨hv, hh⟩
-    -- rw [trans x] at h_teq
     have : a * x = a * y := by
       have h_val : (trans x).val = (trans y).val :=
         congr_arg Subtype.val h_teq
