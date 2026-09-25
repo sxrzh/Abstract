@@ -21,6 +21,18 @@ example {α : Type} [Group α] (h : ∀ a : α, a⁻¹ = a) : Nonempty (AbelianG
         _ = y * x := by simp [h2]
   }⟩
 
+-- 2.1.7
+example {α : Type} [Group α] (n : ℕ)
+  (h1 : ∀ a b : α, (a * b) ^ (n : Int) = a ^ (n : Int) * b ^ (n : Int))
+  (h2 : ∀ a b : α, (a * b) ^ (n + 1 : Int) = a ^ (n + 1 : Int) * b ^ (n + 1 : Int))
+  (h3 : ∀ a b : α, (a * b) ^ (n + 2 : Int) = a ^ (n + 2 : Int) * b ^ (n + 2 : Int)):
+  Nonempty (AbelianGroup α) :=
+  ⟨{
+    mul_comm := by
+      have comm_n : a * (a * b) ^ n = (a * b) ^ n * a := by
+        sorry
+  }⟩
+
 -- 2.1.9
 theorem runit_rinv_is_group {G : Type} [Semigroup G] (e : G) (h1 : ∀ a : G, a * e = a)
   (h2 : ∀ a : G, ∃ a' : G, a * a' = e) : Nonempty (Group G) := by

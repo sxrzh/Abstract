@@ -84,4 +84,7 @@ def pow_int {α : Type} [Group α] (a : α) : ℤ → α
 instance {G : Type} [Group G] : Pow G ℤ where
   pow := pow_int
 
+instance {G : Type} [Group G] : Pow G ℕ where
+  pow := pow_nat
+
 end Abstract

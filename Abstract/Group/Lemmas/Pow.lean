@@ -229,4 +229,19 @@ lemma pow_int_succ {α : Type} [Group α] (a : α) (n : ℤ) :
 @[simp] lemma pow_mul {α : Type} [Group α] (a : α) (n m : ℤ) : a ^ (n * m) = (a ^ n) ^ m := by
   apply pow_int_mul
 
+@[simp] lemma pown_eq_pow {α : Type} [Group α] (a : α) (n : ℕ) : a ^ n = a ^ (n : ℤ) := by
+  have : (n : ℤ) ≥ 0 := by omega
+
+@[simp] lemma pown_zero {α : Type} [Group α] (a : α) : a ^ (0 : ℕ) = 1 := rfl
+@[simp] lemma pown_one {α : Type} [Group α] (a : α) : a ^ (1 : ℕ) = a := by
+  apply pow_int_one
+@[simp] lemma pown_inv {α : Type} [Group α] (a : α) (n : ℕ) : (a ^ n)⁻¹ = a⁻¹ ^ n := by
+  apply inv_pow_nat
+@[simp] lemma pown_add {α : Type} [Group α] (a : α) (n m : ℕ) : a ^ (n + m) = a ^ n * a ^ m := by
+  apply pow_nat_add
+@[simp] lemma pown_sub {α : Type} [Group α] (a : α) (n m : ℕ) : a ^ (n - m) = a ^ n * (a ^ m)⁻¹ := by
+  apply pow_nat_sub
+@[simp] lemma pown_mul {α : Type} [Group α] (a : α) (n m : ℕ) : a ^ (n * m) = (a ^ n) ^ m := by
+  apply pow_nat_mul
+
 end Abstract
