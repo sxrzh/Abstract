@@ -1,6 +1,6 @@
 import Mathlib
 import Abstract.Group.Defs
-import Abstract.Group.Lemmas.Basic
+import Abstract.Group.Lemmas
 
 namespace Abstract
 
@@ -22,15 +22,49 @@ example {α : Type} [Group α] (h : ∀ a : α, a⁻¹ = a) : Nonempty (AbelianG
   }⟩
 
 -- 2.1.7
-example {α : Type} [Group α] (n : ℕ)
-  (h1 : ∀ a b : α, (a * b) ^ (n : Int) = a ^ (n : Int) * b ^ (n : Int))
-  (h2 : ∀ a b : α, (a * b) ^ (n + 1 : Int) = a ^ (n + 1 : Int) * b ^ (n + 1 : Int))
-  (h3 : ∀ a b : α, (a * b) ^ (n + 2 : Int) = a ^ (n + 2 : Int) * b ^ (n + 2 : Int)):
+example {α : Type} [Group α] (n : ℤ)
+  (h1 : ∀ a b : α, (a * b) ^ (n : ℤ) = a ^ (n) * b ^ (n))
+  (h2 : ∀ a b : α, (a * b) ^ (n + 1 : ℤ) = a ^ (n + 1) * b ^ (n + 1))
+  (h3 : ∀ a b : α, (a * b) ^ (n + 2 : ℤ) = a ^ (n + 2) * b ^ (n + 2)):
   Nonempty (AbelianGroup α) :=
   ⟨{
     mul_comm := by
-      have comm_n : a * (a * b) ^ n = (a * b) ^ n * a := by
-        sorry
+      intro a b
+      have partial_comm: b * (a * b) ^ n = (a * b) ^ n * b := by
+        calc b * (a * b) ^ n = a⁻¹ * a * b * (a * b) ^ n := by simp
+        _ = a⁻¹ * ((a * b) * (a * b) ^ n) := by repeat rw [mul_assoc]
+        _ = a⁻¹ * (a * b) ^ (n + 1) := by rw [mul_pow_self]
+        _ = a⁻¹ * a ^ (n + 1) * b ^ (n + 1) := by simp [h2 a b]
+        _ = a ^ n * b ^ (n + 1) := by rw [inv_mul_pow_succ]
+        _ = a ^ n * b ^ n * b := by simp
+        _ = (a * b) ^ n * b := by rw [← h1 a b]
+      have : (a * b) ^ (n + 2) = (a * b) * (a * b) ^ n * (a * b) := by
+        rw [mul_pow_self, ← pow_succ (a * b) (n + 1)]
+        rw [(by omega : n + 1 + 1 = n + 2)]
+      rw [h3 a b] at this
+      have : a⁻¹ * a ^ (n + 2) * b ^ (n + 2) * b⁻¹ =
+        a⁻¹ * (a * b) * (a * b) ^ n * (a * b) * b⁻¹ := by
+        rw [(by simp :
+          a⁻¹ * a ^ (n + 2) * b ^ (n + 2) * b⁻¹ = a⁻¹ * (a ^ (n + 2) * b ^ (n + 2)) * b⁻¹)]
+        rw [this]
+        simp
+      have that : a⁻¹ * a ^ (n + 2) * b ^ (n + 2) * b⁻¹ = (a * b) ^ (n + 1) := by
+        calc a⁻¹ * a ^ (n + 2) * b ^ (n + 2) * b⁻¹
+            = a⁻¹ * a ^ (n + 2) * (b ^ (n + 2) * b⁻¹) := by simp
+          _ = a⁻¹ * a ^ (n + 2) * b ^ (n + 1) := by simp
+          _ = a ^ (n + 1) * b ^ (n + 1) := by rw [(by omega : n + 2 = n + 1 + 1), inv_mul_pow_succ]
+          _ = (a * b) ^ (n + 1) := by rw [h2 a b]
+      rw [that] at this
+      rw [pow_succ] at this
+      have that : a⁻¹ * (a * b) * (a * b) ^ n * (a * b) * b⁻¹ = (a * b) ^ n * (b * a) := by
+        calc a⁻¹ * (a * b) * (a * b) ^ n * (a * b) * b⁻¹
+            = (a⁻¹ * a) * b * (a * b) ^ n * a * (b * b⁻¹) := by repeat rw [mul_assoc]
+          _ = b * (a * b) ^ n * a := by simp
+          _ = (a * b) ^ n * b * a := by rw [partial_comm]
+          _ = (a * b) ^ n * (b * a) := by simp
+      rw [that] at this
+      rw [left_cancel] at this
+      exact this
   }⟩
 
 -- 2.1.9
