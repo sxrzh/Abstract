@@ -50,6 +50,26 @@ namespace Abstract
   induction m with
   | zero => simp
   | succ m h => simp [mul_add, h]
+@[simp] lemma pow_nat_sub {α : Type} [Group α] (a : α) (n m : ℕ) (h : n ≥ m) :
+  pow_nat a (n - m) = pow_nat a n * (pow_nat a m)⁻¹ := by
+  conv_rhs => rw [show n = (n - m) + m by omega]
+  rw [pow_nat_add]
+  simp only [mul_assoc, mul_inv_eq_unit, mul_unit]
+@[simp] lemma inv_mul_pow_nat {α : Type} [Group α] (a : α) (n : ℕ) (h : n > 0) :
+  a⁻¹ * pow_nat a n = pow_nat a (n - 1) := by
+  conv_lhs => rw [show n = (n - 1) + 1 by omega]
+  rw [pow_nat_succ_left, ← mul_assoc]
+  simp
+@[simp] lemma pow_nat_mul_inv {α : Type} [Group α] (a : α) (n : ℕ) (h : n > 0) :
+  pow_nat a n * a⁻¹ = pow_nat a (n - 1) := by
+  conv_lhs => rw [show n = (n - 1) + 1 by omega]
+  rw [pow_nat_succ, mul_assoc, mul_inv_eq_unit, mul_unit]
+@[simp] lemma pow_nat_mul_inv_succ {α : Type} [Group α] (a : α) (n : ℕ) :
+  pow_nat a (n + 1) * a⁻¹ = pow_nat a n := by
+  rw [pow_nat_succ, mul_assoc, mul_inv_eq_unit, mul_unit]
+@[simp] lemma pow_nat_mul_pow_nat_inv {α : Type} [Group α] (a : α) (n m : ℕ) :
+  pow_nat a (n + m) * (pow_nat a m)⁻¹ = pow_nat a n := by
+  rw [pow_nat_add, mul_assoc, mul_inv_eq_unit, mul_unit]
 
 @[simp] lemma pow_int_zero {α : Type} [Group α] (a : α) : pow_int a 0 = 1 := by rfl
 @[simp] lemma pow_int_one {α : Type} [Group α] (a : α) : pow_int a 1 = a := by simp [pow_int]
@@ -218,8 +238,17 @@ lemma pow_int_succ {α : Type} [Group α] (a : α) (n : ℤ) :
 @[simp] lemma mul_pow_int_self {α : Type} [Group α] (a : α) (n : ℤ) :
   a * pow_int a n = pow_int a (n + 1) := by
   simp [← pow_int_mul_self_comm]
+@[simp] lemma inv_mul_pow_int_succ {α : Type} [Group α] (a : α) (n : ℤ) :
+  a⁻¹ * pow_int a (n + 1) = pow_int a n := by
+  rw [← mul_pow_int_self, ← mul_assoc]
+  simp
+@[simp] lemma inv_mul_pow_int {α : Type} [Group α] (a : α) (n : ℤ) :
+  a⁻¹ * pow_int a n = pow_int a (n - 1) := by
+  conv_lhs => rw [show n = (n - 1) + 1 by ring]
+  rw [inv_mul_pow_int_succ]
 
-@[simp] lemma pow_zero {α : Type} [Group α] (a : α) : a ^ (0 : ℤ) = 1 := rfl
+@[simp] lemma pow_zero {α : Type} [Group α] (a : α) : a ^ (0 : ℤ) = 1 := by
+  apply pow_int_zero
 @[simp] lemma pow_one {α : Type} [Group α] (a : α) : a ^ (1 : ℤ) = a := by
   apply pow_int_one
 @[simp] lemma pow_neg_one {α : Type} [Group α] (a : α) : a ^ (-1 : ℤ) = a⁻¹ := by
@@ -239,44 +268,45 @@ lemma pow_int_succ {α : Type} [Group α] (a : α) (n : ℤ) :
   apply mul_pow_int_self
 @[simp] lemma pow_succ {α : Type} [Group α] (a : α) (n : ℤ) :
   a ^ (n + 1) = a ^ n * a := by
-  change pow_int a (n + 1) = pow_int a n * a
-  simp
+  apply pow_int_add_one
 @[simp] lemma inv_mul_pow {α : Type} [Group α] (a : α) (n : ℤ) :
   a⁻¹ * a ^ n = a ^ (n - 1) := by
-  rw [(by simp : a ^ n = a ^ (n - 1 + 1))]
-  rw [← mul_pow_self a (n - 1), ← mul_assoc]
-  simp
+  apply inv_mul_pow_int
 @[simp] lemma pow_mul_inv {α : Type} [Group α] (a : α) (n : ℤ) :
-  a ^ n * a⁻¹ = a ^ (n - 1) := by simp
+  a ^ n * a⁻¹ = a ^ (n - 1) := by
+  change pow_int a n * a⁻¹ = pow_int a (n - 1)
+  rw [← pow_int_sub_one]
 @[simp] lemma inv_mul_pow_succ {α : Type} [Group α] (a : α) (n : ℤ) :
   a⁻¹ * a ^ (n + 1) = a ^ n := by
-  rw [← mul_pow_self, ← mul_assoc]
-  simp
+  apply inv_mul_pow_int_succ
 
 @[simp] lemma pown_eq_pow {α : Type} [Group α] (a : α) (n : ℕ) : a ^ n = a ^ (n : ℤ) := by
   change pow_nat a n = pow_int a (Int.ofNat n)
   simp only [pow_int]
-@[simp] lemma pown_zero {α : Type} [Group α] (a : α) : a ^ (0 : ℕ) = 1 := rfl
+@[simp] lemma pown_zero {α : Type} [Group α] (a : α) : a ^ (0 : ℕ) = 1 := by
+  apply pow_nat_zero
 @[simp] lemma pown_one {α : Type} [Group α] (a : α) : a ^ (1 : ℕ) = a := by
-  apply pow_int_one
+  apply pow_nat_one
 @[simp] lemma pown_inv {α : Type} [Group α] (a : α) (n : ℕ) : (a ^ n)⁻¹ = a⁻¹ ^ n := by
   apply inv_pow_nat
 @[simp] lemma pown_add {α : Type} [Group α] (a : α) (n m : ℕ) : a ^ (n + m) = a ^ n * a ^ m := by
   apply pow_nat_add
 @[simp] lemma pown_sub {α : Type} [Group α] (a : α) (n m : ℕ) (h : n ≥ m) :
   a ^ (n - m) = a ^ n * (a ^ m)⁻¹ := by
-  repeat rw [pown_eq_pow]
-  rw [← pow_sub]
-  norm_cast
+  exact pow_nat_sub a n m h
 @[simp] lemma pown_mul {α : Type} [Group α] (a : α) (n m : ℕ) : a ^ (n * m) = (a ^ n) ^ m := by
   apply pow_nat_mul
 @[simp] lemma mul_pown_self {α : Type} [Group α] (a : α) (n : ℕ) :
   a * a ^ n = a ^ (n + 1) := by
   apply mul_pow_nat_self
-@[simp] lemma inv_mul_pown {α : Type} [Group α] (a : α) (n : ℕ) :
-  a⁻¹ * a ^ (n + 1) = a ^ n := by
-  rw [← mul_pown_self, ← mul_assoc]
-  simp
-
+@[simp] lemma pown_succ {α : Type} [Group α] (a : α) (n : ℕ) :
+  a ^ (n + 1) = a ^ n * a := by
+  apply pow_nat_succ
+@[simp] lemma inv_mul_pown {α : Type} [Group α] (a : α) (n : ℕ) (h : n > 0) :
+  a⁻¹ * a ^ n = a ^ (n - 1) := by
+  exact inv_mul_pow_nat a n h
+@[simp] lemma pown_mul_inv {α : Type} [Group α] (a : α) (n : ℕ) (h : n > 0) :
+  a ^ n * a⁻¹ = a ^ (n - 1) := by
+  exact pow_nat_mul_inv a n h
 
 end Abstract
