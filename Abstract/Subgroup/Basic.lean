@@ -1,1 +1,2 @@
-import Abstract.Subgroup.Lemmas.Basic
+import Abstract.Subgroup.Defs
+import Abstract.Subgroup.Lemmas

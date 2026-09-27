@@ -36,4 +36,9 @@ instance {α : Type} [Group α] : SetLike (Subgroup α) α where
 
 open scoped Pointwise
 
+/-
+  Left coset is defined as a·H
+-/
+
+
 end Abstract
