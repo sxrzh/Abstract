@@ -5,13 +5,13 @@ namespace Abstract
 
 structure Subsemigroup (α : Type) [Semigroup α] where
   carrier : Set α
-  mul_mem {a b} : a ∈ carrier → b ∈ carrier → a * b ∈ carrier
+  mul_mem : ∀ a b, a ∈ carrier → b ∈ carrier → a * b ∈ carrier
 
 structure Submonoid (α : Type) [Monoid α] extends Subsemigroup α where
   one_mem : (1 : α) ∈ carrier
 
 structure Subgroup (α : Type) [Group α] extends Submonoid α where
-  inv_mem {a} : a ∈ carrier → a⁻¹ ∈ carrier
+  inv_mem : ∀ a, a ∈ carrier → a⁻¹ ∈ carrier
 
 instance {α : Type} [Semigroup α] : SetLike (Subsemigroup α) α where
   coe s := s.carrier
