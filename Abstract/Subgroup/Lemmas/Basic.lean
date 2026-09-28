@@ -4,12 +4,22 @@ import Abstract.Subgroup.Defs
 
 namespace Abstract
 
-@[simp] lemma mul_mem {α : Type} [Group α] (H : Subgroup α) {a b : α} (ha : a ∈ H) (hb : b ∈ H) :
+@[simp] lemma mul_mem {α : Type} [Group α] {H : Subgroup α} {a b : α} (ha : a ∈ H) (hb : b ∈ H) :
   a * b ∈ H := H.mul_mem a b ha hb
-@[simp] lemma one_mem {α : Type} [Group α] (H : Subgroup α) :
+@[simp] lemma one_mem {α : Type} [Group α] {H : Subgroup α} :
   (1 : α) ∈ H := H.one_mem
-@[simp] lemma inv_mem {α : Type} [Group α] (H : Subgroup α) {a : α} (ha : a ∈ H) :
+@[simp] lemma inv_mem {α : Type} [Group α] {H : Subgroup α} {a : α} (ha : a ∈ H) :
   a⁻¹ ∈ H := H.inv_mem a ha
+
+@[simp] lemma inv_in_subgroup_implies_self_in {α : Type} [Group α] {x : α} {H : Subgroup α} :
+  x⁻¹ ∈ H → x ∈ H  := by
+  · nth_rw 2 [(by simp : x = x⁻¹⁻¹)]
+    exact inv_mem
+lemma in_subgroup_iff_inv_in {α : Type} [Group α] {x : α} {H : Subgroup α} :
+  x ∈ H ↔ x⁻¹ ∈ H := by
+  constructor
+  · exact inv_mem
+  · exact inv_in_subgroup_implies_self_in
 
 -- lemma subgroup_is_group {α : Type} [Group α] (S : Set α) :
 --   Nonempty (Group S) := by
@@ -47,7 +57,7 @@ lemma subgroup_iff {α : Type} [Group α] (S : Set α) :
       change a ∈ H at ha
       change b ∈ H at hb
       change a * b⁻¹ ∈ H
-      apply mul_mem H ha (inv_mem H hb)
+      apply mul_mem ha (inv_mem hb)
   · intro ⟨⟨x, hx⟩, hv⟩
     have one_mem' : 1 ∈ S := by
       rw [(by simp : 1 = x * x⁻¹)]
@@ -144,7 +154,7 @@ lemma finset_subgroup_iff {α : Type} [Group α] (S : Finset α) :
       change a ∈ H at ha
       change b ∈ H at hb
       change a * b ∈ H
-      apply mul_mem H ha hb
+      apply mul_mem ha hb
   · intro ⟨⟨x, hx⟩, hv⟩
     have h_inv : ∀ a, a ∈ S → a⁻¹ ∈ S :=
       finset_mul_mem_applies_inv_mem S hv
